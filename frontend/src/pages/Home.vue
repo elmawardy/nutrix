@@ -28,18 +28,30 @@
                 </Panel>
             </div>
             <div class="col-2 flex pt-3 pb-3">
-                <Panel header="Order Items" class="w-12" >
-                    <div class="flex flex-column">
-                        <Button label="Go" @click="goOrder" />
-                        <div v-for="(item,index) in orderItems" :key="index">
-                            <div class="flex justify-content-between align-items-center">
-                                <p><strong>{{ item.product.name }}</strong></p>
-                                <div>
-                                    <Button icon="pi pi-pencil" size="small" style="width:2rem;height: 2rem;" aria-label="Edit" severity="secondary" @click="itemToEditIndex = index; edit_item_dialog=true" class="mr-1"/>
-                                    <Button icon="pi pi-times" size="small" style="width:2rem;height: 2rem;" aria-label="Remove" severity="secondary" @click="orderItems.splice(index,1)" />
+                <Panel header="Order Items" class="w-12">
+                    <div class="flex flex-column" style="height:calc(100vh - 10rem)">
+                        <div style="height:80vh;overflow: auto;">
+                            <div v-for="(item,index) in orderItems" :key="index">
+                                <div class="flex justify-content-between align-items-center">
+                                    <p class="w-6" style="text-overflow:ellipsis"><strong>{{ item.product.name }}</strong></p>
+                                    <p>{{ item.price }} EGP</p>
+                                    <div>
+                                        <Button icon="pi pi-pencil" size="small" style="width:2rem;height: 2rem;" aria-label="Edit" severity="secondary" @click="itemToEditIndex = index; edit_item_dialog=true" class="mr-1"/>
+                                        <Button icon="pi pi-times" size="small" style="width:2rem;height: 2rem;" aria-label="Remove" severity="secondary" @click="orderItems.splice(index,1)" />
+                                    </div>
+                                </div>
+                                <p class="m-0">{{ item.comment }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-column flex-wrap justify-content-between h-20rem">
+                            <div>
+                                <Divider />
+                                <div class="flex justify-content-between flex-wrap align-items-center">
+                                    <h2>Total : </h2>
+                                    <p style="font-size:1.5rem">{{ total }} <span style="font-size:0.8rem">EGP</span></p>
                                 </div>
                             </div>
-                            <p class="m-0">{{ item.comment }}</p>
+                            <Button label="Checkout" @click="goOrder" />
                         </div>
                     </div>
                 </Panel>
@@ -69,6 +81,8 @@
   import axios from 'axios'
   import OrderItemView from '@/components/OrderItemView.vue'
   import {OrderItem} from '@/classes/OrderItem'
+  import Divider from 'primevue/divider';
+
 
 
   const toast = useToast();
@@ -82,6 +96,7 @@
   
   
   const comment = ref("")
+  const total = ref(0)
   const namewithcomment = ref("")
   const idwithcomment = ref("")
   const visible = ref(false)
@@ -94,24 +109,24 @@ const categories = ref([])
 const orderItems = ref<OrderItem[]>([])
 
 
-const addItem = (item) => {
+const addItem = async (item) => {
 
     const new_item = new OrderItem()
     new_item.product.name = item.name
     new_item.product.id = item.id
-    new_item.ReloadDefaults()
+    await new_item.ReloadDefaults()
 
 
     orderItems.value.push(new_item)
 }
 
-const addWithComment = () => {
+const addWithComment = async () => {
 
     const new_item = new OrderItem()
     new_item.product.name = namewithcomment.value
     new_item.comment = comment.value
     new_item.product.id = idwithcomment.value
-    new_item.ReloadDefaults()
+    await new_item.ReloadDefaults()
 
     orderItems.value.push(new_item)
     visible.value=false
@@ -151,12 +166,26 @@ watch(searchtext, (newSearchText) => {
 })
 
 
+watch(() => orderItems.value, 
+  (currentValue) => {
+    let x = 0
+    currentValue.forEach((item) => {
+
+        x += item.price
+
+    })
+    total.value = x
+  },
+  {deep: true}
+);
+
   
 const products = ref([
 ])
 
 
-setInterval(() => {
+
+const refreshAvailabilities = () => {
     var product_ids = ""
     products.value.forEach((product,index) => {
         product_ids += index > 0 ? "," +product.id : product.id
@@ -168,7 +197,7 @@ setInterval(() => {
             products.value[index].availability = Math.round(response.data.filter((x) => x.recipe_id == product.id)[0].available * 100) / 100
         })
     })
-}, 3000);
+}
 
 
 // const showAllItems = () => {
@@ -193,6 +222,7 @@ watch(selectedCategory, (category) => {
                 price:recipe.price
             })
         })
+        refreshAvailabilities();
     }
 })
 

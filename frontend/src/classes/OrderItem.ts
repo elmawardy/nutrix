@@ -106,6 +106,7 @@ export class OrderItem {
     product:            Product;
 	materials:          OrderItemMaterial[];
     ready: number;
+    price: number;
 	is_consume_from_ready: boolean;
     can_change_ready_toggle: boolean;
 	sub_items:           OrderItem[];
@@ -120,6 +121,7 @@ export class OrderItem {
 
             this.product = product
             this.quantity = product.quantity
+            this.price = product.price
             this.materials = product.materials.map( (material,index) => {
 
                 
@@ -185,6 +187,7 @@ export class OrderItem {
             this.sub_items = []
             this.quantity = 1
             this.can_change_ready_toggle = false
+            this.price = 0
         }
     }
 
@@ -200,6 +203,7 @@ export class OrderItem {
         this.sub_items = orderItem.sub_items
         this.comment = orderItem.comment
         this.quantity = orderItem.quantity
+        this.price = orderItem.price
     }
 
 
@@ -272,12 +276,13 @@ export class OrderItem {
     }
 
 
-    ReloadDefaults() {
-        axios.get("http://localhost:8000/api/recipetree?id="+this.product.id).then((response) => {
+    async ReloadDefaults() {
+        await axios.get("http://localhost:8000/api/recipetree?id="+this.product.id).then((response) => {
 
             const materials : Material[] = []
             const subrecipes: OrderItem[] = []
             this.product = response.data
+            this.price = response.data.price
             this.sub_items = this.FillSubitems()
 
             response.data.materials.forEach((material: any) => {
