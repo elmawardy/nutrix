@@ -30,7 +30,7 @@
             <div class="col-2 flex pt-3 pb-3">
                 <Panel header="Order Items" class="w-12">
                     <div class="flex flex-column" style="height:calc(100vh - 10rem)">
-                        <div style="height:80vh;overflow: auto;">
+                        <div style="height:60vh;overflow: auto;">
                             <div v-for="(item,index) in orderItems" :key="index">
                                 <div class="flex justify-content-between align-items-center">
                                     <p class="w-6" style="text-overflow:ellipsis"><strong>{{ item.product.name }}</strong></p>
@@ -47,8 +47,19 @@
                             <div>
                                 <Divider />
                                 <div class="flex justify-content-between flex-wrap align-items-center">
+                                    <p>Subtotal : </p>
+                                    <p style="font-size:1rem">{{ subtotal }} <span style="font-size:0.8rem">EGP</span></p>
+                                </div>
+                                <div class="flex justify-content-between flex-wrap align-items-center">
+                                    <p class="my-0">Discount :</p>
+                                    <div class="w-7 flex justify-content-end align-items-center">
+                                        <InputText v-model="discount" placeholder="0" type="number" class="w-6 h-2rem"  />
+                                        <p style="font-size:0.8rem" class="ml-2">EGP</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-content-between flex-wrap align-items-center">
                                     <h2>Total : </h2>
-                                    <p style="font-size:1.5rem">{{ total }} <span style="font-size:0.8rem">EGP</span></p>
+                                    <p style="font-size:1.4rem">{{ total }} <span style="font-size:1rem">EGP</span></p>
                                 </div>
                             </div>
                             <Button label="Checkout" @click="goOrder" />
@@ -96,6 +107,8 @@
   
   
   const comment = ref("")
+  const subtotal = ref(0)
+  const discount = ref(0)
   const total = ref(0)
   const namewithcomment = ref("")
   const idwithcomment = ref("")
@@ -149,7 +162,8 @@ const goOrder = () => {
     if (orderItems.value.length > 0){
         axios.post("http://localhost:8000/api/submitorder",
             {
-                items:orderItems.value   
+                items:orderItems.value,
+                discount, 
             }
         ).then((response) => {
             console.log(response.data)
@@ -165,6 +179,17 @@ watch(searchtext, (newSearchText) => {
   console.log(`x is ${newSearchText}`)
 })
 
+watch(subtotal, (new_subtotal) => {
+  total.value = new_subtotal - discount.value
+  if (total.value < 0)
+    total.value = 0
+})
+watch(discount, (new_discount) => {
+  total.value = subtotal.value - new_discount
+  if (total.value < 0)
+    total.value = 0
+})
+
 
 watch(() => orderItems.value, 
   (currentValue) => {
@@ -174,7 +199,7 @@ watch(() => orderItems.value,
         x += item.price
 
     })
-    total.value = x
+    subtotal.value = x
   },
   {deep: true}
 );
