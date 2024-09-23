@@ -57,9 +57,13 @@
                                         <p style="font-size:0.8rem" class="ml-2">EGP</p>
                                     </div>
                                 </div>
+                                <div class="flex justify-content-center align-items-center">
+                                    <Slider v-model="discount_percent" class="w-9 mt-1" />
+                                    <p class="ml-2" style="font-size:0.7">{{ discount_percent }} %</p>
+                                </div>
                                 <div class="flex justify-content-between flex-wrap align-items-center">
                                     <h2>Total : </h2>
-                                    <p style="font-size:1.4rem">{{ total }} <span style="font-size:1rem">EGP</span></p>
+                                    <p style="font-size:1.4rem">{{ total.toFixed(2) }} <span style="font-size:1rem">EGP</span></p>
                                 </div>
                             </div>
                             <Button label="Checkout" @click="goOrder" />
@@ -93,6 +97,8 @@
   import OrderItemView from '@/components/OrderItemView.vue'
   import {OrderItem} from '@/classes/OrderItem'
   import Divider from 'primevue/divider';
+  import Slider from 'primevue/slider';
+
 
 
 
@@ -109,6 +115,7 @@
   const comment = ref("")
   const subtotal = ref(0)
   const discount = ref(0)
+  const discount_percent = ref(0)
   const total = ref(0)
   const namewithcomment = ref("")
   const idwithcomment = ref("")
@@ -188,6 +195,9 @@ watch(discount, (new_discount) => {
   total.value = subtotal.value - new_discount
   if (total.value < 0)
     total.value = 0
+})
+watch(discount_percent, (new_discount_percent) => {
+  discount.value = new_discount_percent * subtotal.value / 100
 })
 
 
