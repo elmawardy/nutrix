@@ -48,18 +48,18 @@
                                 <Divider />
                                 <div class="flex justify-content-between flex-wrap align-items-center">
                                     <p>Subtotal : </p>
-                                    <p style="font-size:1rem">{{ subtotal }} <span style="font-size:0.8rem">EGP</span></p>
+                                    <p style="font-size:1rem">{{ subtotal.toFixed(2) }} <span style="font-size:0.8rem">EGP</span></p>
                                 </div>
                                 <div class="flex justify-content-between flex-wrap align-items-center">
                                     <p class="my-0">Discount :</p>
                                     <div class="w-7 flex justify-content-end align-items-center">
-                                        <InputText v-model="discount" placeholder="0" type="number" class="w-6 h-2rem"  />
+                                        <InputText v-model="discount" :disabled="orderItems.length == 0" placeholder="0" type="number" class="w-8 h-2rem"  />
                                         <p style="font-size:0.8rem" class="ml-2">EGP</p>
                                     </div>
                                 </div>
                                 <div class="flex justify-content-center align-items-center">
                                     <Slider v-model="discount_percent" class="w-9 mt-1" />
-                                    <p class="ml-2" style="font-size:0.7">{{ discount_percent }} %</p>
+                                    <p class="ml-2" style="font-size:0.8rem">{{ discount_percent.toFixed(2) }} %</p>
                                 </div>
                                 <div class="flex justify-content-between flex-wrap align-items-center">
                                     <h2>Total : </h2>
@@ -182,6 +182,10 @@ const goOrder = () => {
 };
 
 
+const isUpdatingDiscount = ref(false)
+const isUpdatingDiscountPercent = ref(false)
+
+
 watch(searchtext, (newSearchText) => {
   console.log(`x is ${newSearchText}`)
 })
@@ -191,13 +195,26 @@ watch(subtotal, (new_subtotal) => {
   if (total.value < 0)
     total.value = 0
 })
+
 watch(discount, (new_discount) => {
-  total.value = subtotal.value - new_discount
-  if (total.value < 0)
+  if (!isUpdatingDiscountPercent.value){
+    isUpdatingDiscount.value = true
+    total.value = subtotal.value - new_discount
+    discount_percent.value = new_discount*100 / subtotal.value
+    if (total.value < 0)
     total.value = 0
+    }else{
+      isUpdatingDiscountPercent.value = false
+  }
 })
 watch(discount_percent, (new_discount_percent) => {
-  discount.value = new_discount_percent * subtotal.value / 100
+ if (!isUpdatingDiscount.value){
+    isUpdatingDiscountPercent.value = true
+    discount.value = new_discount_percent * subtotal.value / 100
+    isUpdatingDiscount.value = false
+  }else {
+    isUpdatingDiscount.value = false
+  }
 })
 
 
@@ -210,6 +227,7 @@ watch(() => orderItems.value,
 
     })
     subtotal.value = x
+    discount.value = discount_percent.value * subtotal.value / 100
   },
   {deep: true}
 );
