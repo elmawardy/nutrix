@@ -200,7 +200,9 @@ watch(discount, (new_discount) => {
   if (!isUpdatingDiscountPercent.value){
     isUpdatingDiscount.value = true
     total.value = subtotal.value - new_discount
-    discount_percent.value = new_discount*100 / subtotal.value
+
+    if (new_discount != 0)
+        discount_percent.value = new_discount*100 / subtotal.value
     if (total.value < 0)
     total.value = 0
     }else{
@@ -227,6 +229,7 @@ watch(() => orderItems.value,
         x += item.price
 
     })
+    
     subtotal.value = x
     discount.value = discount_percent.value * subtotal.value / 100
   },
