@@ -58,7 +58,7 @@
                                     </div>
                                 </div>
                                 <div class="flex justify-content-center align-items-center">
-                                    <Slider v-model="discount_percent" class="w-9 mt-1" />
+                                    <Slider v-model="discount_percent" class="w-9 mt-1" style="height:0.6rem;" />
                                     <p class="ml-2" style="font-size:0.8rem">{{ discount_percent.toFixed(2) }} %</p>
                                 </div>
                                 <div class="flex justify-content-between flex-wrap align-items-center">
@@ -211,6 +211,7 @@ watch(discount_percent, (new_discount_percent) => {
  if (!isUpdatingDiscount.value){
     isUpdatingDiscountPercent.value = true
     discount.value = new_discount_percent * subtotal.value / 100
+    total.value = subtotal.value - discount.value
     isUpdatingDiscount.value = false
   }else {
     isUpdatingDiscount.value = false
