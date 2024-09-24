@@ -2,21 +2,23 @@ import axios from 'axios';
 
 
 export class MaterialEntry {
-	_id:               number;
+	_id:               string;
 	purchase_quantity: number;
 	purchase_price:    number;
 	quantity:         number
 	company:          string;
+    cost: number
 	sku:              string;
     label: string;
 
     constructor(){
-        this._id = 0
+        this._id = ""
         this.purchase_quantity = 0
         this.purchase_price = 0
         this.quantity = 0
         this.company = ""
         this.sku = ""
+        this.cost = 0
         this.label = ""
     }
 }
@@ -258,6 +260,19 @@ export class OrderItem {
 
             this.sub_items[index] = new_item
         })
+    }
+
+
+    async UpdateMaterialEntryCost(material: OrderItemMaterial){
+        await axios.get(`http://localhost:8000/api/materialcost?material_id=${material.material._id}&entry_id=${material.entry._id}&quantity=${material.quantity}`).then((response) => {
+
+            this.materials.forEach((my_material: OrderItemMaterial) => {
+                if (my_material.material._id == material.material._id){
+                    my_material.entry.cost = response.data
+                }
+            })
+          
+        })  
     }
 
 

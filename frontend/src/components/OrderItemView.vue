@@ -11,13 +11,14 @@
         </div>
     </div>
     <div v-if="!model.is_consume_from_ready">
-        <div class="flex my-3 py-2 justify-content-between" style="border-bottom:1px solid gray" v-for="(material,index) in model.materials" :key="index">
+        <div class="flex my-3 py-2 justify-content-between align-items-center" style="border-bottom:1px solid gray" v-for="(material,index) in model.materials" :key="index">
             {{ material.material.name }}
             <div class="flex">
                 <InputText type="number" v-model.number="model.materials[index].quantity" size="small"/>
                 <span class="ml-2 mt-2">{{ material.material.unit }}</span>
             </div>
             <Dropdown v-if="model.product.materials[index].entries != null && model.product.materials[index].entries.length > 0" v-model="model.materials[index].entry"  :options="model.product.materials[index].entries" optionLabel="label" placeholder="Select option" class="w-6" />
+            Cost: {{ material.entry.cost }}
         </div>
     </div>
     <div v-if="model.sub_items != null">
@@ -28,14 +29,30 @@
 </template>
 
 <script setup lang="ts">
-import {defineModel} from 'vue'
+import {defineModel, watch} from 'vue'
 import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import InputSwitch from 'primevue/inputswitch';
-import { OrderItem } from '@/classes/OrderItem'
+import { OrderItem, OrderItemMaterial } from '@/classes/OrderItem'
 
 const model = defineModel<OrderItem>({
     required: true})
+
+
+
+const updateEntriesCost = () => {
+    model.value.materials.forEach(async (material: OrderItemMaterial) => {
+        await model.value.UpdateMaterialEntryCost(material)
+    })
+}
+
+updateEntriesCost();
+
+
+watch(model, () => {
+    updateEntriesCost()
+},
+{deep: true})
 
 
 // const init = () => {
