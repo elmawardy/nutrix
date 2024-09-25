@@ -94,11 +94,22 @@ export class OrderItemMaterial {
 	material:       Material;
 	entry: MaterialEntry; 
 	quantity:       number;
+    entries: MaterialEntry[]
     
-    constructor(){
-        this.material = new Material()
-        this.entry = new MaterialEntry()
+    constructor(material ?:Material){
+
+        if (material != undefined){
+            this.material = material
+            this.entry = material.entries[0]
+            this.entries = material.entries
+        }else {
+            this.material = new Material()
+            this.entry = new MaterialEntry()
+            this.entries = []
+        }
+
         this.quantity = 0
+
     }
 }
 
@@ -136,6 +147,7 @@ export class OrderItem {
 
                 const itemmaterial = <OrderItemMaterial>{
                     entry: material.entries[0],
+                    entries: material.entries,
                     material: material,
                     quantity: material.quantity
                 }
@@ -248,6 +260,7 @@ export class OrderItem {
                             }
                         })
                         material.material = product_material
+                        material.entries = product_material.entries
                     }
                 })
             })
@@ -263,16 +276,28 @@ export class OrderItem {
     }
 
 
-    async UpdateMaterialEntryCost(material: OrderItemMaterial){
-        await axios.get(`http://localhost:8000/api/materialcost?material_id=${material.material._id}&entry_id=${material.entry._id}&quantity=${material.quantity}`).then((response) => {
+    async UpdateMaterialEntryCost(materialIndex: number){
+        await axios.get(`http://localhost:8000/api/materialcost?material_id=${this.materials[materialIndex].material._id}&entry_id=${this.materials[materialIndex].entry._id}&quantity=${this.materials[materialIndex].quantity}`).then((response) => {
 
-            this.materials.forEach((my_material: OrderItemMaterial) => {
-                if (my_material.material._id == material.material._id){
-                    my_material.entry.cost = response.data
-                }
-            })
+            this.materials[materialIndex].entry.cost = response.data
           
         })  
+    }
+
+    PushMaterial(material: Material) {
+
+        material.entries.forEach(e => {
+            e.label = e.company + " - " + e.quantity + " " + material.unit
+        })
+
+        const new_material = new OrderItemMaterial(material)
+        this.materials.push(new_material)
+        this.UpdateMaterialEntryCost(this.materials.length - 1)
+    }
+
+
+    RemoveMaterialByIndex(materialIndex: number){
+        this.materials.splice(materialIndex,1)        
     }
 
 
@@ -337,6 +362,7 @@ export class OrderItem {
 
                 return <OrderItemMaterial>{
                     entry: material.entries[0],
+                    entries: material.entries,
                     material: material,
                     quantity: material.quantity
                 }
