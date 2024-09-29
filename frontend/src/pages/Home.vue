@@ -8,7 +8,12 @@
                 </a>
             </template>
             <template #end>
-                <Button icon="pi pi-bell" severity="secondary" size="large" badge="0"  text rounded aria-label="Notifications" />
+                <Button  severity="secondary" size="large"  text rounded aria-label="Notifications">
+                    <span class="p-button-icon pi pi-bell"></span>
+                    <Badge value="0" class="p-badge-success"  />
+                    <Badge value="0" class="p-badge-warning" />
+                    <Badge value="0" class="p-badge-danger" />
+                </Button>
             </template>
         </Menubar>
         <div class="grid" style="flex-grow:1;">
@@ -104,6 +109,7 @@
   import {OrderItem} from '@/classes/OrderItem'
   import Divider from 'primevue/divider';
   import Slider from 'primevue/slider';
+  import Badge from 'primevue/badge'
 
 
 

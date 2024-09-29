@@ -5,6 +5,7 @@ import (
 	"github.com/elmawardy/nutrix/common/logger"
 	"github.com/elmawardy/nutrix/modules"
 	"github.com/elmawardy/nutrix/modules/core/handlers"
+	"github.com/elmawardy/nutrix/modules/core/services"
 	"github.com/gorilla/mux"
 )
 
@@ -47,6 +48,14 @@ func (cmb *CoreModuleBuilder) RegisterHttpHandlers(router *mux.Router) modules.I
 	router.Handle("/api/finishorder", handlers.FinishOrder(cmb.Config, cmb.Logger)).Methods("POST", "OPTIONS")
 	router.Handle("/api/recipeavailability", handlers.GetRecipeAvailability(cmb.Config, cmb.Logger)).Methods("GET")
 	router.Handle("/api/recipetree", handlers.GetRecipeTree(cmb.Config, cmb.Logger)).Methods("GET")
+
+	notification_service, err := services.SpawnNotificationService("melody", cmb.Logger, cmb.Config)
+	if err != nil {
+		cmb.Logger.Error(err.Error())
+		panic(err)
+	}
+
+	router.Handle("/ws", handlers.HandleNotificationsWsRequest(cmb.Config, cmb.Logger, notification_service))
 
 	return cmb
 }
