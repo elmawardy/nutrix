@@ -9,9 +9,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewBuilder(config config.Config) *CoreModuleBuilder {
+func NewBuilder(config config.Config, settings config.Settings) *CoreModuleBuilder {
 	cmb := new(CoreModuleBuilder)
 	cmb.Config = config
+	cmb.Settings = settings
 
 	return cmb
 }
@@ -22,8 +23,9 @@ type Core struct {
 }
 
 type CoreModuleBuilder struct {
-	Logger logger.ILogger
-	Config config.Config
+	Logger   logger.ILogger
+	Config   config.Config
+	Settings config.Settings
 }
 
 func (cmb *CoreModuleBuilder) SetLogger(logger logger.ILogger) modules.IModuleBuilder {
@@ -42,7 +44,7 @@ func (cmb *CoreModuleBuilder) RegisterHttpHandlers(router *mux.Router) modules.I
 	router.Handle("/api/components", handlers.GetComponents(cmb.Config, cmb.Logger)).Methods("GET")
 	router.Handle("/api/materialcost", handlers.CalculateMaterialCost(cmb.Config, cmb.Logger)).Methods("GET")
 	router.Handle("/api/categories", handlers.GetCategories(cmb.Config, cmb.Logger)).Methods("GET")
-	router.Handle("/api/startorder", handlers.StartOrder(cmb.Config, cmb.Logger)).Methods("POST", "OPTIONS")
+	router.Handle("/api/startorder", handlers.StartOrder(cmb.Config, cmb.Logger, cmb.Settings)).Methods("POST", "OPTIONS")
 	router.Handle("/api/orders", handlers.GetOrders(cmb.Config, cmb.Logger)).Methods("GET")
 	router.Handle("/api/submitorder", handlers.SubmitOrder(cmb.Config, cmb.Logger)).Methods("POST", "OPTIONS")
 	router.Handle("/api/finishorder", handlers.FinishOrder(cmb.Config, cmb.Logger)).Methods("POST", "OPTIONS")

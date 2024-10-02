@@ -38,7 +38,7 @@ func (ws *MelodyWebsocket) HandleHttpRequest(w http.ResponseWriter, r *http.Requ
 func (ws *MelodyWebsocket) SendToTopic(topic_name string, message string) error {
 
 	for _, topic := range ws.Topics {
-		if topic.Name == topic_name {
+		if topic.Name == topic_name || topic.Name == "all" {
 			for _, subscriber := range topic.Subscribers {
 				ws.SendToSession(message, subscriber)
 			}
@@ -69,18 +69,13 @@ func (ws *MelodyWebsocket) HandleConnect() {
 }
 
 func (ws *MelodyWebsocket) AddSessionToTopic(topic_name string, session_id string) {
-	if topic, err := ws.GetTopic(topic_name); err == nil {
-		topic.Subscribers = append(topic.Subscribers, session_id)
-		ws.SendToSession("{state:\"success\"}", session_id)
+	if _, index, err := ws.GetTopic(topic_name); err == nil {
+		ws.Topics[index].Subscribers = append(ws.Topics[index].Subscribers, session_id)
 	} else if err.Error() == "topic not found" {
 		ws.Topics = append(ws.Topics, models.Topic{
 			Name:        topic_name,
 			Subscribers: []string{session_id},
 		})
-
-		ws.SendToSession("{state:\"success\"}", session_id)
-	} else {
-		ws.SendToSession("{state:\"failed\"}", session_id)
 	}
 }
 
@@ -119,7 +114,7 @@ func (ws *MelodyWebsocket) HandleMessages() {
 				return
 			}
 
-			if topic_message.TopicName == "order_finish" {
+			if topic_message.TopicName == "order_finished" {
 
 				var order_finish_client_message models.WebsocketOrderFinishClientMessage
 				if err := json.Unmarshal([]byte(msg), &order_finish_client_message); err != nil {
@@ -130,7 +125,7 @@ func (ws *MelodyWebsocket) HandleMessages() {
 				order_finish_topic_message := models.WebsocketOrderFinishServerMessage{
 					WebsocketTopicServerMessage: models.WebsocketTopicServerMessage{
 						Type:      "topic_message",
-						TopicName: "order_finish",
+						TopicName: "order_finished",
 						Severity:  "info",
 					},
 					OrderId: order_finish_client_message.OrderId,
@@ -150,15 +145,15 @@ func (ws *MelodyWebsocket) HandleMessages() {
 	})
 }
 
-func (ws *MelodyWebsocket) GetTopic(topic_name string) (topic models.Topic, err error) {
+func (ws *MelodyWebsocket) GetTopic(topic_name string) (topic models.Topic, index int, err error) {
 
 	for _, t := range ws.Topics {
 		if t.Name == topic_name {
-			return t, nil
+			return t, 0, nil
 		}
 	}
 
-	return topic, fmt.Errorf("topic not found")
+	return topic, 0, fmt.Errorf("topic not found")
 }
 
 var melody_ws *MelodyWebsocket
