@@ -180,6 +180,16 @@ const init = () => {
                 notification.topic_name = "Order Finished"
                 notification.type = "topic_message"
                 notifications.value.push(notification);
+            }else {
+                const notification = new Notification();
+                notification.description = data.message
+                notification.severity = data.severity
+                notification.topic_name = data.topic_name
+                notification.type = data.type
+                notifications.value.push(notification);
+
+                toast.removeGroup('br')
+                toast.add({ severity: data.severity, summary: data.topic_name, detail: data.message, life: 30000,group:'br' });
             }
         }
 
@@ -208,7 +218,7 @@ const notifications_severity_counter = computed(() => {
             case "info":
                 counter[1]++;
                 break;
-            case "warning":
+            case "warn":
                 counter[2]++;
                 break;
             case "error":

@@ -147,7 +147,7 @@ func (cs *ComponentService) ConsumeItemComponentsForOrder(rs models.OrderItem, o
 			notifications = append(notifications, models.WebsocketTopicServerMessage{
 				TopicName: "inventory_low",
 				Type:      "topic_message",
-				Severity:  "warning",
+				Severity:  "warn",
 				Message:   fmt.Sprintf("Inventory for %s is low: %f", component.Material.Name, float64(quantity)),
 				Key:       fmt.Sprintf("low_inventiry@%s", component.Material.Id),
 			})
