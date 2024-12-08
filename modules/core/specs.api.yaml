@@ -1,0 +1,1356 @@
+openapi: 3.0.0
+info:
+  title: Nutrix API
+  description: This is the RESTful API for the Nutrix application, providing access to core functionalities.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4010
+    description: Prism default url (https://github.com/stoplightio/prism)
+
+paths:
+
+  /categories:
+    get:
+      summary: Retrieve a list of categories
+      parameters:
+        - in: query
+          name: page[number]
+          schema:
+            type: integer
+          description: The page number to retrieve
+          required: false
+        - in: query
+          name: page[size]
+          schema:
+            type: integer
+          description: The number of items per page
+          required: false
+      responses:
+        '200':
+          description: Succesfully returned categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Category"
+                  meta:
+                    type: object
+                    properties:
+                      total_items:
+                        description: total number of available categories in the db
+                        type: integer
+
+              examples:
+                categoryExample:
+                  value:
+                    data:
+                      - id: 1
+                        name: "Beverages"
+                        products:
+                          - id: 1
+                            name: Orance juice
+
+                      - id: 2
+                        name: "Snacks"
+                        products:
+                          - id: 2
+                            name: Fries
+                    meta:
+                      total_items: 2
+
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string    
+
+    post:
+      summary: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Category'
+      responses:
+        '201':
+          description: Succesfully created new category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Category'
+
+  /categories/{id}:
+
+    patch:
+      summary: Update a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the category to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Category'
+                          
+      responses:
+        '200':
+          description: Successfully update category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+
+
+    delete:
+      summary: Delete a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the category to delete
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content - The category was successfully deleted
+        '404':
+          description: Not Found - The category with the specified ID does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+        '400':
+          description: Bad Request - The request could not be understood
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+
+  /materials:
+    get:
+      summary: Retrieve a list of materials
+      parameters:
+        - name: page[number]
+          in: query
+          required: false
+          description: The page number to retrieve
+          schema:
+            type: integer
+            default: 1
+        - name: page[size]
+          in: query
+          required: false
+          description: The number of items to display per page
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: OK - The list of materials was successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Material'
+                  meta:
+                    type: object
+                    properties:
+                      total_records:
+                        type: integer
+                        description: The total number of items in the list
+              examples:
+                application/json:
+                  value:
+                    data:
+                      - id: 123
+                        name: "Material 1"
+                        quantity: 100
+                        unit: "kg"
+                      - id: 124
+                        name: "Material 2"
+                        quantity: 200
+                        unit: "liters"
+                    meta:
+                      total_records: 2
+    post:
+      summary: Add new material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Material'
+      responses:
+        '201':
+          description: Done creating material
+    
+  /materials/{id}:
+    patch:
+      summary: Edit material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The id of the material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Material'
+              required:
+                - data
+      responses:
+        '200':
+          description: OK - The material was successfully edited
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Material'
+  
+  /materials/{id}/entries:
+    post:
+      summary: push material entry to material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The id of the material entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/MaterialEntry'
+
+      responses:
+        '201':
+          description: Material entry successfully inserted to material
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaterialEntry'
+
+  /materials/{material_id}/entries/{entry_id}:
+    delete:
+      summary: delete entry from material entries
+      parameters:
+        - name: material_id
+          in: path
+          required: true
+          description: The ID of the material
+          schema:
+            type: string
+        - name: entry_id
+          in: path
+          required: true
+          description: The ID of the material entry
+          schema:
+            type: string
+
+      responses:
+        '204':
+          description: Material entry successfully deleted
+
+  /materials/{id}/entries/{entry_id}/cost:
+    get:
+      summary: Get material cost
+      operationId: materialEntryCost
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          description: material id
+          required: true
+        - in: path
+          name: entry_id
+          schema:
+            type: string
+          description: material entry id
+          required: true
+        - in: query
+          name: quantity
+          required: true
+          schema:
+            type: number
+          description: quantity of the material entry
+      responses:
+        '200':
+          description: A JSON object with the material cost
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: number
+
+              examples:
+                example1:
+                  value:
+                    data: 12.5
+  
+  /materials/{id}/logs:
+    get:
+      summary: Get material consumption logs
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          description: material id
+          required: true
+      responses:
+        '200':
+          description: A JSON array of material consumption logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ComponentConsumeLogs'
+                    
+              examples:
+                example1:
+                  summary: Sample consumption log 1
+                  value:
+                    data:
+                      - id: 1
+                        entry_id: 2
+                        date: "2022-12-01T10:00:00Z"
+                        component_name: "Component A"
+                        quantity: 10.5
+                        item_name: "Item A"
+                        order_item_index: 0
+                        order_id: "order123"
+                      - id: 2
+                        entry_id: 1
+                        date: "2022-12-02T11:30:00Z"
+                        component_name: "Component B"
+                        quantity: 5.0
+                        item_name: "Item B"
+                        order_item_index: 2
+                        order_id: "order456"
+                          
+  /orders:
+    get:
+      summary: Retrieve a list of orders
+      parameters:
+        - name: page[number]
+          in: query
+          required: false
+          description: The page number to retrieve
+          schema:
+            type: integer
+            default: 1
+        - name: page[size]
+          in: query
+          required: false
+          description: The number of items to display per page
+          schema:
+            type: integer
+            default: 10
+        - name: filter[is_paid]
+          in: query
+          required: false
+          description: Filter by is_paid = false or true
+          schema:
+            type: boolean
+        - name: filter[is_stashed]
+          in: query
+          required: false
+          description: Filter by is_stashed = false or true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: A JSON array of orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                    
+              examples:
+                example1:
+                  summary: Sample orders
+                  value:
+                    data:
+                      - submitted_at: "2022-12-01T10:00:00Z"
+                        id: 1
+                        display_id: "A-123"
+                        items:
+                          - id: 1
+                            product: 
+                              id: 1
+                              name: "Product A"
+                              materials:
+                                - id: 1
+                                  name: "Material A"
+                                  quantity: 1.0
+                                  unit: "kg"
+                            quantity: 1.0
+                            price: 10.0
+                            cost: 8.0
+                            sale_price: 12.0
+                            is_consume_from_ready: false
+                            sub_items: []
+                            comment: ""
+                        discount: 0.0
+                        state: "pending"
+                        started_at: null
+                        comment: ""
+                        cost: 8.0
+                        sale_price: 12.0
+                        is_pay_later: false
+                        is_paid: false
+                      
+    post:
+      summary: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: "#/components/schemas/Order"
+      responses:
+        '201':
+          description: Succeffully created the order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    delete:
+      summary: Delete Order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the order to delete
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Order deleted
+  
+  /orders/{id}/start:
+    post:
+      summary: Start an order
+      operationId: orderStart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the order to start
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Order started successfully
+  
+  /orders/{id}/finish:
+    post:
+      summary: Finish order
+      operationId: orderFinish
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the order to finish
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Order finished successfully
+  
+  /orders/{id}/cancel:
+    post:
+      summary: Cancel order
+      operationId: orderCancel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the order to cancel
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Order cancelled successfully
+  
+  /orders/{id}/pay:
+    post:
+      summary: Pay amount for order
+      operationId: orderPay
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    amount:
+                      type: number
+                      format: float
+                    payment_method:
+                      type: string
+                    currency:
+                      type: string
+              required:
+                - data
+      responses:
+        '204':
+          description: Payment was successful
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        code:
+                          type: string
+                        title:
+                          type: string
+                        detail:
+                          type: string
+
+  /products:
+    get:
+      summary: Get products
+      parameters:
+        - name: page[number]
+          in: query
+          required: false
+          description: The page number to retrieve
+          schema:
+            type: integer
+            default: 1
+        - name: page[size]
+          in: query
+          required: false
+          description: The number of items to display per page
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A JSON array of products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: "Product 1"
+                    materials:
+                      - id: 1
+                        name: "Material 1"
+                        quantity: 10
+                        material_entries:
+                          - id: 1
+                            product_id: 2
+                            material_id: 1
+                            quantity: 100.0
+                    sub_products:
+                      - id: 2
+                        name: "Product 2"
+                        quantity: 2
+                    price: 150.0
+                    unit: "liters"
+                    quantity: 100.0
+                    ready: 50.0
+                    availability: 25.0
+
+    post:
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+  
+  /products/{id}:
+    get:
+      summary: Get a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the product to retrieve
+          schema:
+            type: string
+        - name: filter[fields]
+          in: query
+          required: false
+          description: Comma separated list of fields to only get in the response
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A product to return
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+    
+    patch:
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the product to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: A JSON:API compliant response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        details:
+                          type: string
+        '404':
+          description: Not Found - The product with the specified ID does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        details:
+                          type: string
+
+
+    delete:
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the product to delete
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content - The product was successfully deleted
+        '404':
+          description: Not Found - The product with the specified ID does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        details:
+                          type: string
+                          
+        '400':
+          description: Bad Request - The request could not be understood
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        status:
+                          type: string
+                        title:
+                          type: string
+                        details:
+                          type: string
+  
+  /salesperday:
+    get:
+      summary: Retrieve sales per day
+      parameters:
+        - in: query
+          name: page[number]
+          schema:
+            type: integer
+          description: The page number to retrieve
+          required: false
+        - in: query
+          name: page[size]
+          schema:
+            type: integer
+          description: The number of items per page
+          required: false
+      responses:
+        '200':
+          description: A JSON array of sales per day
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SalesPerDay'
+  
+
+  /settings:
+    get:
+      summary: Retrieve settings
+      responses:
+        '200':
+          description: A JSON:API compliant response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Settings'
+    
+    patch:
+      summary: Update settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Settings'
+      responses:
+        '200':
+          description: Succeffully updated settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Settings'
+
+
+components:
+  schemas:
+
+
+    Material:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Id of the material
+          readOnly: true
+        name:
+          type: string
+          description: Name of the material
+        entries:
+          type: array
+          description: Array of material entries
+          items:
+            $ref: '#/components/schemas/MaterialEntry'
+        quantity:
+          type: number
+          format: float
+          description: Quantity of the material
+        settings:
+          $ref: '#/components/schemas/MaterialSettings'
+        unit:
+          type: string
+          description: Unit of the material
+
+    MaterialSettings:
+      type: object
+      properties:
+        stock_alert_treshold:
+          type: number
+          format: float
+          description: Stock alert threshold
+
+    MaterialEntry:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Id of the material entry
+          nullable: true
+        purchase_quantity:
+          type: number
+          format: float
+          description: Quantity of the material purchased
+        purchase_price:
+          type: number
+          format: double
+          description: Price of the material purchased
+        quantity:
+          type: number
+          format: float
+          description: Quantity of the material
+        company:
+          type: string
+          description: Company of the material
+        sku:
+          type: string
+          description: SKU of the material
+        expiration_date:
+          type: string
+          format: date-time
+          description: Expiration date of the material
+
+
+    RequestComponentEntryAdd:
+      type: object
+      properties:
+        component_id:
+          type: number
+          description: Id of the component
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialEntry'
+
+
+    ComponentConsumeLogs:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Id of the component consume log
+        entry_id:
+          type: number
+          description: the id of the material entry that was used
+        date:
+          type: string
+          format: date-time
+          description: Date of the log entry
+        component_name:
+          type: string
+          description: Name of the component
+        quantity:
+          type: number
+          format: float
+          description: Quantity consumed
+        item_name:
+          type: string
+          description: Name of the item
+        order_item_index:
+          type: integer
+          description: Item index inside the order items
+        order_id:
+          type: string
+          description: Id of the order
+
+    ItemCost:
+      type: object
+      properties:
+        recipe_id:
+          type: number
+        item_name:
+          type: string
+        cost:
+          type: number
+          format: float
+        sale_price:
+          type: number
+          format: float
+        quantity:
+          type: number
+          format: float
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              component_name:
+                type: string
+              component_id:
+                type: number
+              entry_id:
+                type: number
+              quantity:
+                type: number
+                format: float
+              cost:
+                type: number
+                format: float
+        downstream_cost:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCost'
+
+
+    ProductEntry:
+      type: object
+      properties:
+        id:
+          type: number
+        purchaseQuantity:
+          type: number
+          format: float
+        purchasePrice:
+          type: number
+          format: float
+        quantity:
+          type: number
+          format: float
+        company:
+          type: string
+        unit:
+          type: string
+        sku:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/Material'
+        sub_products:
+          type: array
+          items:
+            type: object
+            properties:
+              needed_quantity:
+                type: number
+              sub_products: 
+                $ref: '#/components/schemas/Product'
+        price:
+          type: number
+          format: float
+        image_url:
+          type: string
+        unit:
+          type: string
+        quantity:
+          description: quantity finished and ready to be served
+          type: number
+          format: float
+        availability:
+          description: total quantity can be produced calculated from the available materials in the inventory
+          type: number
+          format: float
+
+
+    OrderItemMaterial:
+      type: object
+      properties:
+        material:
+          $ref: '#/components/schemas/Material'
+        entry:
+          $ref: '#/components/schemas/MaterialEntry'
+        quantity:
+          type: number
+          format: float
+
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: number
+        product:
+          $ref: '#/components/schemas/Product'
+        price:
+          type: number
+          format: float
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemMaterial'
+        is_consume_from_ready:
+          type: boolean
+        sub_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        quantity:
+          type: number
+          format: float
+        comment:
+          type: string
+        sale_price:
+          type: number
+          format: float
+        cost:
+          type: number
+          format: float
+
+    Order:
+      type: object
+      properties:
+        submitted_at:
+          type: string
+          format: date-time
+        id:
+          type: number
+        display_id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        discount:
+          type: number
+          format: float
+        state:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        comment:
+          type: string
+        cost:
+          type: number
+          format: float
+        sale_price:
+          type: number
+          format: float
+        is_pay_later:
+          type: boolean
+        is_paid:
+          type: boolean
+
+    CategoryProduct:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryProduct'
+    
+    SalesPerDayOrder:
+      type: object
+      properties:
+        order:
+          $ref: '#/components/schemas/Order'
+        costs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCost'
+
+    SalesPerDay:
+      type: object
+      properties:
+        id:
+          type: number
+        date:
+          type: string
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesPerDayOrder'
+        costs:
+          type: number
+          format: float
+        total_sales:
+          type: number
+          format: float
+
+    Settings:
+      type: object
+      properties:
+        id:
+          type: number
+        inventory:
+          type: object
+          properties:
+            defaultInventoryQuantityWarn:
+              type: number
+              format: float
+        orders:
+          type: object
+          properties:
+            queues:
+              type: array
+              items:
+                type: object
+                properties:
+                  prefix:
+                    type: string
+                  next:
+                    type: integer
+                    format: uint32
