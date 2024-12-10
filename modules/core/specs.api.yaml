@@ -34,6 +34,12 @@ paths:
               schema:
                 type: object
                 properties:
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                      
                   data:
                     type: array
                     items:
@@ -41,8 +47,16 @@ paths:
                   meta:
                     type: object
                     properties:
-                      total_items:
+                      total_records:
                         description: total number of available categories in the db
+                        type: integer
+                      page:
+                        description: current page
+                        type: integer
+                      records_per_page:
+                        type: integer
+                      last_page:
+                        description: last page
                         type: integer
 
               examples:
@@ -282,6 +296,11 @@ paths:
               schema:
                 type: object
                 properties:
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
                   data:
                     type: array
                     items:
@@ -290,8 +309,16 @@ paths:
                     type: object
                     properties:
                       total_records:
+                        description: total number of available categories in the db
                         type: integer
-                        description: The total number of items in the list
+                      page:
+                        description: current page
+                        type: integer
+                      records_per_page:
+                        type: integer
+                      last_page:
+                        description: last page
+                        type: integer
               examples:
                 application/json:
                   value:
@@ -464,10 +491,29 @@ paths:
               schema:
                 type: object
                 properties:
+                  links:
+                      type: object
+                      properties:
+                        self:
+                          type: string
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/MaterialConsumeLogs'
+                  meta:
+                    type: object
+                    properties:
+                      total_records:
+                        description: total number of available categories in the db
+                        type: integer
+                      page:
+                        description: current page
+                        type: integer
+                      records_per_page:
+                        type: integer
+                      last_page:
+                        description: last page
+                        type: integer
                     
               examples:
                 example1:
@@ -529,10 +575,29 @@ paths:
               schema:
                 type: object
                 properties:
+                  links:
+                      type: object
+                      properties:
+                        self:
+                          type: string
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Order'
+                  meta:
+                    type: object
+                    properties:
+                      total_records:
+                        description: total number of available categories in the db
+                        type: integer
+                      page:
+                        description: current page
+                        type: integer
+                      records_per_page:
+                        type: integer
+                      last_page:
+                        description: last page
+                        type: integer
                     
               examples:
                 example1:
@@ -728,10 +793,30 @@ paths:
               schema:
                 type: object
                 properties:
+                  links:
+                      type: object
+                      properties:
+                        self:
+                          type: string
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
+
+                  meta:
+                    type: object
+                    properties:
+                      total_records:
+                        description: total number of available categories in the db
+                        type: integer
+                      page:
+                        description: current page
+                        type: integer
+                      records_per_page:
+                        type: integer
+                      last_page:
+                        description: last page
+                        type: integer
               examples:
                 example1:
                   value:
@@ -953,10 +1038,29 @@ paths:
               schema:
                 type: object
                 properties:
+                  links:
+                      type: object
+                      properties:
+                        self:
+                          type: string
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/SalesPerDay'
+                  meta:
+                    type: object
+                    properties:
+                      total_records:
+                        description: total number of available categories in the db
+                        type: integer
+                      page:
+                        description: current page
+                        type: integer
+                      records_per_page:
+                        type: integer
+                      last_page:
+                        description: last page
+                        type: integer
   
 
   /settings:
@@ -1590,6 +1694,10 @@ components:
               format: float
             state:
               type: string
+              enum:
+                - pending
+                - finished
+                - cancelled
             started_at:
               type: string
               format: date-time
@@ -1598,7 +1706,11 @@ components:
             cost:
               type: number
               format: float
-            sale_price:
+            price:
+              description: total price before discount
+              type: number
+              format: float
+            paid_amount:
               type: number
               format: float
             is_pay_later:
