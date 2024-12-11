@@ -13,6 +13,9 @@ paths:
   /categories:
     get:
       summary: Retrieve a list of categories
+      security:
+        - oidcAuth:
+          - test
       parameters:
         - in: query
           name: page[number]
@@ -58,24 +61,6 @@ paths:
                       last_page:
                         description: last page
                         type: integer
-
-              examples:
-                categoryExample:
-                  value:
-                    data:
-                      - id: 1
-                        name: "Beverages"
-                        products:
-                          - id: 1
-                            name: Orance juice
-
-                      - id: 2
-                        name: "Snacks"
-                        products:
-                          - id: 2
-                            name: Fries
-                    meta:
-                      total_items: 2
 
         '400':
           description: Bad request
@@ -229,7 +214,7 @@ paths:
           required: true
           description: The ID of the category to delete
           schema:
-            type: string
+            type: number
       responses:
         '204':
           description: No Content - The category was successfully deleted
@@ -1101,8 +1086,14 @@ paths:
 
 
 components:
-  schemas:
 
+  securitySchemes:
+    oidcAuth:
+      type: openIdConnect
+      openIdConnectUrl: http://localhost:2020/.well-known/openid-configuration
+
+
+  schemas:
 
     Material:
       type: object
@@ -1282,7 +1273,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - itemscosts
         links:
           type: object
           properties:
@@ -1366,7 +1357,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - productentries
         links:
           type: object
           properties:
@@ -1411,7 +1402,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - products
         links:
           type: object
           properties:
@@ -1481,7 +1472,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - orderitemmaterials
         links:
           type: object
           properties:
@@ -1540,7 +1531,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - orderitems
         links:
           type: object
           properties:
@@ -1664,7 +1655,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - orders
         links:
           type: object
           properties:
@@ -1752,7 +1743,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - categories
         links:
           type: object
           properties:
@@ -1805,7 +1796,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - salesperdayorders
         links:
           type: object
           properties:
@@ -1870,7 +1861,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - salesperdays
         links:
           type: object
           properties:
@@ -1918,7 +1909,7 @@ components:
         type:
           type: string
           enum:
-            - materialconsumelogs
+            - settings
         links:
           type: object
           properties:
@@ -1957,3 +1948,6 @@ components:
                       next:
                         type: integer
                         format: uint32
+
+security:
+  - oidcAuth: []
