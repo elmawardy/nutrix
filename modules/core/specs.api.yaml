@@ -14,8 +14,7 @@ paths:
     get:
       summary: Retrieve a list of categories
       security:
-        - oidcAuth:
-          - test
+        - oidcAuth: []
       parameters:
         - in: query
           name: page[number]
@@ -101,6 +100,8 @@ paths:
 
     post:
       summary: Create a new category
+      security:
+        - oidcAuth: []
       requestBody:
         required: true
         content:
@@ -125,13 +126,15 @@ paths:
 
     patch:
       summary: Update a category
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           description: The ID of the category to update
           schema:
-            type: string
+            type: integer
       requestBody:
         required: true
         content:
@@ -208,13 +211,15 @@ paths:
 
     delete:
       summary: Delete a category
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           description: The ID of the category to delete
           schema:
-            type: number
+            type: integer
       responses:
         '204':
           description: No Content - The category was successfully deleted
@@ -258,6 +263,8 @@ paths:
   /materials:
     get:
       summary: Retrieve a list of materials
+      security:
+        - oidcAuth: []
       parameters:
         - name: page[number]
           in: query
@@ -320,6 +327,8 @@ paths:
                       total_records: 2
     post:
       summary: Add new material
+      security:
+        - oidcAuth: []
       requestBody:
         required: true
         content:
@@ -338,12 +347,14 @@ paths:
   /materials/{id}:
     patch:
       summary: Edit material
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
           description: The id of the material
       requestBody:
         required: true
@@ -370,12 +381,14 @@ paths:
   /materials/{id}/entries:
     post:
       summary: push material entry to material
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
           description: The id of the material entry
       requestBody:
         required: true
@@ -401,19 +414,21 @@ paths:
   /materials/{material_id}/entries/{entry_id}:
     delete:
       summary: delete entry from material entries
+      security:
+        - oidcAuth: []
       parameters:
         - name: material_id
           in: path
           required: true
           description: The ID of the material
           schema:
-            type: string
+            type: integer
         - name: entry_id
           in: path
           required: true
           description: The ID of the material entry
           schema:
-            type: string
+            type: integer
 
       responses:
         '204':
@@ -422,18 +437,20 @@ paths:
   /materials/{id}/entries/{entry_id}/cost:
     get:
       summary: Get material cost
+      security:
+        - oidcAuth: []
       operationId: materialEntryCost
       parameters:
         - in: path
           name: id
           schema:
-            type: string
+            type: integer
           description: material id
           required: true
         - in: path
           name: entry_id
           schema:
-            type: string
+            type: integer
           description: material entry id
           required: true
         - in: query
@@ -461,6 +478,8 @@ paths:
   /materials/{id}/logs:
     get:
       summary: Get material consumption logs
+      security:
+        - oidcAuth: []
       parameters:
         - in: path
           name: id
@@ -525,6 +544,8 @@ paths:
   /orders:
     get:
       summary: Retrieve a list of orders
+      security:
+        - oidcAuth: []
       parameters:
         - name: page[number]
           in: query
@@ -620,6 +641,8 @@ paths:
                       
     post:
       summary: Create a new order
+      security:
+        - oidcAuth: []
       requestBody:
         required: true
         content:
@@ -643,13 +666,15 @@ paths:
   /orders/{id}:
     delete:
       summary: Delete Order
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           description: The ID of the order to delete
           schema:
-            type: string
+            type: integer
       responses:
         '201':
           description: Order deleted
@@ -657,6 +682,8 @@ paths:
   /orders/{id}/start:
     post:
       summary: Start an order
+      security:
+        - oidcAuth: []
       operationId: orderStart
       parameters:
         - name: id
@@ -664,7 +691,7 @@ paths:
           required: true
           description: The ID of the order to start
           schema:
-            type: string
+            type: integer
       responses:
         '204':
           description: Order started successfully
@@ -672,6 +699,8 @@ paths:
   /orders/{id}/finish:
     post:
       summary: Finish order
+      security:
+        - oidcAuth: []
       operationId: orderFinish
       parameters:
         - name: id
@@ -679,7 +708,7 @@ paths:
           required: true
           description: The ID of the order to finish
           schema:
-            type: string
+            type: integer
       responses:
         '204':
           description: Order finished successfully
@@ -687,6 +716,8 @@ paths:
   /orders/{id}/cancel:
     post:
       summary: Cancel order
+      security:
+        - oidcAuth: []
       operationId: orderCancel
       parameters:
         - name: id
@@ -694,7 +725,7 @@ paths:
           required: true
           description: The ID of the order to cancel
           schema:
-            type: string
+            type: integer
       responses:
         '204':
           description: Order cancelled successfully
@@ -702,13 +733,15 @@ paths:
   /orders/{id}/pay:
     post:
       summary: Pay amount for order
+      security:
+        - oidcAuth: []
       operationId: orderPay
       parameters:
         - name: id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       requestBody:
         required: true
         content:
@@ -755,6 +788,8 @@ paths:
   /products:
     get:
       summary: Get products
+      security:
+        - oidcAuth: []
       parameters:
         - name: page[number]
           in: query
@@ -828,6 +863,8 @@ paths:
 
     post:
       summary: Create a new product
+      security:
+        - oidcAuth: []
       requestBody:
         required: true
         content:
@@ -851,13 +888,15 @@ paths:
   /products/{id}:
     get:
       summary: Get a product
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           description: The ID of the product to retrieve
           schema:
-            type: string
+            type: integer
         - name: filter[fields]
           in: query
           required: false
@@ -877,13 +916,15 @@ paths:
     
     patch:
       summary: Update a product
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           description: The ID of the product to update
           schema:
-            type: string
+            type: integer
       requestBody:
         required: true
         content:
@@ -947,13 +988,15 @@ paths:
 
     delete:
       summary: Delete a product
+      security:
+        - oidcAuth: []
       parameters:
         - name: id
           in: path
           required: true
           description: The ID of the product to delete
           schema:
-            type: string
+            type: integer
       responses:
         '204':
           description: No Content - The product was successfully deleted
@@ -1002,6 +1045,8 @@ paths:
   /salesperday:
     get:
       summary: Retrieve sales per day
+      security:
+        - oidcAuth: []
       parameters:
         - in: query
           name: page[number]
@@ -1051,6 +1096,8 @@ paths:
   /settings:
     get:
       summary: Retrieve settings
+      security:
+        - oidcAuth: []
       responses:
         '200':
           description: A JSON:API compliant response
@@ -1064,6 +1111,8 @@ paths:
     
     patch:
       summary: Update settings
+      security:
+        - oidcAuth: []
       requestBody:
         required: true
         content:
