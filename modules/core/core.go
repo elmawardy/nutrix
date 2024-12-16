@@ -155,7 +155,7 @@ func (c *Core) RegisterHttpHandlers(router *mux.Router, prefix string) {
 	router.Handle(prefix+"/api/materiallogs", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.GetMaterialLogs(c.Config, c.Logger), "admin"))).Methods("GET", "OPTIONS")
 	router.Handle(prefix+"/api/materials", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.GetMaterials(c.Config, c.Logger), "admin", "cashier", "chef"))).Methods("GET", "OPTIONS")
 	router.Handle(prefix+"/api/materialcost", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.CalculateMaterialCost(c.Config, c.Logger), "admin", "cashier", "chef"))).Methods("GET", "OPTIONS")
-	router.Handle(prefix+"/api/categories", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.GetCategories(c.Config, c.Logger), "admin", "cashier"))).Methods("GET", "OPTIONS")
+	router.Handle(prefix+"/api/categories", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.GetCategories(c.Config, c.Logger, prefix), "admin", "cashier"))).Methods("GET", "OPTIONS")
 	router.Handle(prefix+"/api/updatecategory", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.UpdateCategory(c.Config, c.Logger), "admin"))).Methods("POST", "OPTIONS")
 	router.Handle(prefix+"/api/deletecategory", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.DeleteCategory(c.Config, c.Logger), "admin"))).Methods("GET", "OPTIONS")
 	router.Handle(prefix+"/api/insertcategory", middlewares.AllowCors(auth_svc.AllowAnyOfRoles(handlers.InsertCategory(c.Config, c.Logger), "admin"))).Methods("POST", "OPTIONS")

@@ -14,7 +14,8 @@ paths:
     get:
       summary: Retrieve a list of categories
       security:
-        - oidcAuth: []
+        - oidcAuth:
+          - admin
       parameters:
         - in: query
           name: page[number]
@@ -46,18 +47,19 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Category"
+
                   meta:
                     type: object
                     properties:
                       total_records:
                         description: total number of available categories in the db
                         type: integer
-                      page:
+                      page[number]:
                         description: current page
                         type: integer
-                      records_per_page:
+                      page[size]:
                         type: integer
-                      last_page:
+                      page[count]:
                         description: last page
                         type: integer
 
@@ -311,20 +313,7 @@ paths:
                       last_page:
                         description: last page
                         type: integer
-              examples:
-                application/json:
-                  value:
-                    data:
-                      - id: 123
-                        name: "Material 1"
-                        quantity: 100
-                        unit: "kg"
-                      - id: 124
-                        name: "Material 2"
-                        quantity: 200
-                        unit: "liters"
-                    meta:
-                      total_records: 2
+                        
     post:
       summary: Add new material
       security:
@@ -1138,8 +1127,16 @@ components:
 
   securitySchemes:
     oidcAuth:
-      type: openIdConnect
-      openIdConnectUrl: http://localhost:2020/.well-known/openid-configuration
+      type: oauth2
+      description: This API uses OAuth 2 with the implicit grant flow.
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:2020/oauth/v2/authorize
+          tokenUrl: http://localhost:2020/oauth/v2/token
+          scopes:
+            admin: general admin of the app
+            cashier: cashier related role
+            chef: chef related role
 
 
   schemas:
@@ -1190,10 +1187,27 @@ components:
           type: object
           properties:
             entries:
-              type: array
+              type: object
               description: Array of material entries
-              items:
-                $ref: '#/components/schemas/MaterialEntry'
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MaterialEntry'
+                meta:
+                  type: object
+                  properties:
+                    total_records:
+                      description: total number of available categories in the db
+                      type: integer
+                    page:
+                      description: current page
+                      type: integer
+                    records_per_page:
+                      type: integer
+                    last_page:
+                      description: last page
+                      type: integer
 
     MaterialEntry:
       type: object
@@ -1803,11 +1817,7 @@ components:
               properties:
                 href:
                   type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
+
         attributes:
           type: object
           properties:
@@ -1834,6 +1844,22 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/Product'
+                
+
+                meta:
+                  type: object
+                  properties:
+                    total_records:
+                      description: total number of available categories in the db
+                      type: integer
+                    page:
+                      description: current page
+                      type: integer
+                    records_per_page:
+                      type: integer
+                    last_page:
+                      description: last page
+                      type: integer
     
     SalesPerDayOrder:
       type: object
@@ -1899,6 +1925,21 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/ItemCost'
+                
+                meta:
+                  type: object
+                  properties:
+                    total_records:
+                      description: total number of available categories in the db
+                      type: integer
+                    page:
+                      description: current page
+                      type: integer
+                    records_per_page:
+                      type: integer
+                    last_page:
+                      description: last page
+                      type: integer
 
     SalesPerDay:
       type: object
@@ -1943,9 +1984,28 @@ components:
           type: object
           properties:
             orders:
-              type: array
-              items:
-                $ref: '#/components/schemas/SalesPerDayOrder'
+              type: object
+              properties:
+
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SalesPerDayOrder'
+
+                meta:
+                  type: object
+                  properties:
+                    total_records:
+                      description: total number of available categories in the db
+                      type: integer
+                    page:
+                      description: current page
+                      type: integer
+                    records_per_page:
+                      type: integer
+                    last_page:
+                      description: last page
+                      type: integer
 
     Settings:
       type: object
@@ -1999,4 +2059,7 @@ components:
                         format: uint32
 
 security:
-  - oidcAuth: []
+  - oidcAuth:
+    - chef
+    - admin
+    - cashier

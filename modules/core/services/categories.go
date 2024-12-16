@@ -118,7 +118,7 @@ func (cs *CategoryService) UpdateCategory(category models.Category) (err error) 
 }
 
 // GetCategories returns a list of categories from the database.
-func (cs *CategoryService) GetCategories(first int, rows int) (categories []models.Category, err error) {
+func (cs *CategoryService) GetCategories(page_number int, page_size int) (categories []models.Category, err error) {
 
 	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%v", cs.Config.Databases[0].Host, cs.Config.Databases[0].Port))
 
@@ -143,8 +143,10 @@ func (cs *CategoryService) GetCategories(first int, rows int) (categories []mode
 
 	// Fetch categories from the database
 	findOptions := options.Find()
-	findOptions.SetSkip(int64(first))
-	findOptions.SetLimit(int64(rows))
+
+	skip := (page_number - 1) * page_size
+	findOptions.SetSkip(int64(skip))
+	findOptions.SetLimit(int64(page_size))
 	cur, err := client.Database("waha").Collection("categories").Find(ctx, bson.D{}, findOptions)
 	if err != nil {
 		return categories, err
