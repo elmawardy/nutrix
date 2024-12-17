@@ -291,7 +291,7 @@ func (cs *MaterialService) GetComponentAvailability(componentid string) (amount 
 // GetMaterials retrieves all materials from the database.
 //
 // The function returns a slice of Material structs.
-func (cs *MaterialService) GetMaterials() (materials []models.Material, err error) {
+func (cs *MaterialService) GetMaterials(page_number int, page_size int) (materials []models.Material, err error) {
 	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%v", cs.Config.Databases[0].Host, cs.Config.Databases[0].Port))
 
 	// Create a context with a timeout (optional)
@@ -315,8 +315,14 @@ func (cs *MaterialService) GetMaterials() (materials []models.Material, err erro
 	// Connected successfully
 	fmt.Println("Connected to MongoDB!")
 
+	findOptions := options.Find()
+
+	skip := (page_number - 1) * page_size
+	findOptions.SetSkip(int64(skip))
+	findOptions.SetLimit(int64(page_size))
+
 	// Get the "test" collection from the database
-	cur, err := client.Database("waha").Collection("materials").Find(ctx, bson.D{})
+	cur, err := client.Database("waha").Collection("materials").Find(ctx, bson.D{}, findOptions)
 	if err != nil {
 		cs.Logger.Error(err.Error())
 		return materials, err

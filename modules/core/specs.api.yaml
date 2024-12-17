@@ -7,6 +7,8 @@ info:
 servers:
   - url: http://localhost:4010
     description: Prism default url (https://github.com/stoplightio/prism)
+  - url: http://localhost:8000
+    description: local nutrix api
 
 paths:
 
@@ -37,12 +39,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                      
                   data:
                     type: array
                     items:
@@ -153,7 +149,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Category'
         '400':
           description: Bad request
           content:
@@ -290,11 +289,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
                   data:
                     type: array
                     items:
@@ -484,11 +478,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  links:
-                      type: object
-                      properties:
-                        self:
-                          type: string
                   data:
                     type: array
                     items:
@@ -507,28 +496,6 @@ paths:
                       last_page:
                         description: last page
                         type: integer
-                    
-              examples:
-                example1:
-                  summary: Sample consumption log 1
-                  value:
-                    data:
-                      - id: 1
-                        entry_id: 2
-                        date: "2022-12-01T10:00:00Z"
-                        component_name: "Component A"
-                        quantity: 10.5
-                        item_name: "Item A"
-                        order_item_index: 0
-                        order_id: "order123"
-                      - id: 2
-                        entry_id: 1
-                        date: "2022-12-02T11:30:00Z"
-                        component_name: "Component B"
-                        quantity: 5.0
-                        item_name: "Item B"
-                        order_item_index: 2
-                        order_id: "order456"
                           
   /orders:
     get:
@@ -570,11 +537,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  links:
-                      type: object
-                      properties:
-                        self:
-                          type: string
                   data:
                     type: array
                     items:
@@ -593,40 +555,6 @@ paths:
                       last_page:
                         description: last page
                         type: integer
-                    
-              examples:
-                example1:
-                  summary: Sample orders
-                  value:
-                    data:
-                      - submitted_at: "2022-12-01T10:00:00Z"
-                        id: 1
-                        display_id: "A-123"
-                        items:
-                          - id: 1
-                            product: 
-                              id: 1
-                              name: "Product A"
-                              materials:
-                                - id: 1
-                                  name: "Material A"
-                                  quantity: 1.0
-                                  unit: "kg"
-                            quantity: 1.0
-                            price: 10.0
-                            cost: 8.0
-                            sale_price: 12.0
-                            is_consume_from_ready: false
-                            sub_items: []
-                            comment: ""
-                        discount: 0.0
-                        state: "pending"
-                        started_at: null
-                        comment: ""
-                        cost: 8.0
-                        sale_price: 12.0
-                        is_pay_later: false
-                        is_paid: false
                       
     post:
       summary: Create a new order
@@ -802,11 +730,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  links:
-                      type: object
-                      properties:
-                        self:
-                          type: string
                   data:
                     type: array
                     items:
@@ -826,29 +749,6 @@ paths:
                       last_page:
                         description: last page
                         type: integer
-              examples:
-                example1:
-                  value:
-                    id: 1
-                    name: "Product 1"
-                    materials:
-                      - id: 1
-                        name: "Material 1"
-                        quantity: 10
-                        material_entries:
-                          - id: 1
-                            product_id: 2
-                            material_id: 1
-                            quantity: 100.0
-                    sub_products:
-                      - id: 2
-                        name: "Product 2"
-                        quantity: 2
-                    price: 150.0
-                    unit: "liters"
-                    quantity: 100.0
-                    ready: 50.0
-                    availability: 25.0
 
     post:
       summary: Create a new product
@@ -1057,11 +957,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  links:
-                      type: object
-                      properties:
-                        self:
-                          type: string
                   data:
                     type: array
                     items:
@@ -1148,66 +1043,24 @@ components:
           type: number
           description: Id of the material
           readOnly: true
-        type:
+        name:
           type: string
-          enum:
-            - materials
-        links:
+          description: Name of the material
+        settings:
           type: object
           properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        attributes:
-          type: object
-          properties:    
-            name:
-              type: string
-              description: Name of the material
-            settings:
-              type: object
-              properties:
-                stock_alert_treshold:
-                  type: number
-                  format: float
-                  description: Stock alert threshold
-            unit:
-              type: string
-              description: Unit of the material
-        relationships:
-          type: object
-          properties:
-            entries:
-              type: object
-              description: Array of material entries
-              properties:
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/MaterialEntry'
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      description: total number of available categories in the db
-                      type: integer
-                    page:
-                      description: current page
-                      type: integer
-                    records_per_page:
-                      type: integer
-                    last_page:
-                      description: last page
-                      type: integer
+            stock_alert_treshold:
+              type: number
+              format: float
+              description: Stock alert threshold
+        unit:
+          type: string
+          description: Unit of the material
+        
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialEntry'
 
     MaterialEntry:
       type: object
@@ -1216,50 +1069,29 @@ components:
           type: number
           description: Id of the material entry
           readOnly: true
-        type:
+        purchase_quantity:
+          type: number
+          format: float
+          description: Quantity of the material purchased
+        purchase_price:
+          type: number
+          format: double
+          description: Price of the material purchased
+        quantity:
+          type: number
+          format: float
+          description: current quantity of the material entry in the inventory
+        title:
           type: string
-          enum:
-            - materialentries
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        attributes:
-          type: object
-          properties:
-            purchase_quantity:
-              type: number
-              format: float
-              description: Quantity of the material purchased
-            purchase_price:
-              type: number
-              format: double
-              description: Price of the material purchased
-            quantity:
-              type: number
-              format: float
-              description: current quantity of the material entry in the inventory
-            title:
-              type: string
-              description: Title of the material entry
-            sku:
-              type: string
-              description: SKU of the material
-            expiration_date:
-              type: string
-              format: date-time
-              description: Expiration date of the material
+          description: Title of the material entry
+        sku:
+          type: string
+          description: SKU of the material
+        expiration_date:
+          type: string
+          format: date-time
+          description: Expiration date of the material
+
 
     MaterialConsumeLogs:
       type: object
@@ -1268,63 +1100,38 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        date:
           type: string
-          enum:
-            - materialconsumelogs
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        attributes:
-          type: object
-          properties:
-            date:
-              type: string
-              format: date-time
-              description: Date of the log entry
-            quantity:
-              type: number
-              format: float
-              description: Quantity consumed
-            order_item_index:
-              type: integer
-              description: Item index inside the order items
+          format: date-time
+          description: Date of the log entry
+        quantity:
+          type: number
+          format: float
+          description: Quantity consumed
+        order_item_index:
+          type: integer
 
-        relationships:
+        material:
           type: object
           properties:
-            material:
-              type: object
-              properties:
-                data:
-                  $ref: '#/components/schemas/Material'
-            material_entry:
-              type: object
-              properties:
-                data:
-                  $ref: '#/components/schemas/MaterialEntry'
-            product:
-              type: object
-              properties:
-                data:
-                  $ref: '#/components/schemas/Product'
-            order:
-              type: object
-              properties:
-                data:
-                  $ref: '#/components/schemas/Order'
+            data:
+              $ref: '#/components/schemas/Material'
+        material_entry:
+          type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/MaterialEntry'
+        product:
+          type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Product'
+        order:
+          type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Order'
+
 
     ItemCost:
       type: object
@@ -1333,80 +1140,43 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
-          type: string
-          enum:
-            - itemscosts
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        attributes:
-          type: object
-          properties:
-            cost:
-              type: number
-              format: float
-            sale_price:
-              type: number
-              format: float
-            quantity:
-              type: number
-              format: float
-            components:
-              type: array
-              items:
+        cost:
+          type: number
+          format: float
+        sale_price:
+          type: number
+          format: float
+        quantity:
+          type: number
+          format: float
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              quantity:
+                type: number
+                format: float
+              cost:
+                type: number
+                format: float
+              material:
                 type: object
                 properties:
                   data:
-                    type: object
-                    properties:
-                      attributes:
-                        type: object
-                        properties:
-                          quantity:
-                            type: number
-                            format: float
-                          cost:
-                            type: number
-                            format: float
-                      relationships:
-                        type: object
-                        properties:
-                          material:
-                            type: object
-                            properties:
-                              data:
-                                $ref: '#/components/schemas/Material'
-                          material_entry:
-                            type: object
-                            properties:
-                              data:
-                                $ref: '#/components/schemas/MaterialEntry'
-            downstream_cost:
-              type: array
-              items:
-                $ref: '#/components/schemas/ItemCost'
-      
-        relationships:
+                    $ref: '#/components/schemas/Material'
+              material_entry:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaterialEntry'
+              downstream_cost:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemCost'
+        product:
           type: object
-          properties:
-            product:
-              type: object
-              properties:
-                data:
-                  $ref: '#/components/schemas/Product'
+          $ref: '#/components/schemas/Product'
 
 
 
@@ -1417,42 +1187,19 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        purchase_quantity:
+          type: number
+          format: float
+        purchase_price:
+          type: number
+          format: float
+        quantity:
+          type: number
+          format: float
+        title:
           type: string
-          enum:
-            - productentries
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        
-        attributes:
-          type: object
-          properties:
-            purchase_quantity:
-              type: number
-              format: float
-            purchase_price:
-              type: number
-              format: float
-            quantity:
-              type: number
-              format: float
-            title:
-              type: string
-            sku:
-              type: string
+        sku:
+          type: string
       
 
     Product:
@@ -1462,68 +1209,42 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        name:
           type: string
-          enum:
-            - products
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-            price:
-              type: number
-              format: float
-            image_url:
-              type: string
-            unit:
-              type: string
-            quantity:
-              description: current quantity in the db (doesn't include materials in the inventory)
-              type: number
-              format: float
-            availability:
-              description: total quantity can be produced calculated from the available materials in the inventory
-              type: number
-              format: float
+        price:
+          type: number
+          format: float
+        image_url:
+          type: string
+        unit:
+          type: string
+        quantity:
+          description: current quantity in the db (doesn't include materials in the inventory)
+          type: number
+          format: float
+        availability:
+          description: total quantity can be produced calculated from the available materials in the inventory
+          type: number
+          format: float
+        materials:
+          type: array
+          items:
+            type: object
+            properties:
+              quantity:
+                type: number
+              material:
+                $ref: '#/components/schemas/Material'
+        sub_products:
+          type: array
+          items:
+            type: object
+            properties:
+              quantity:
+                type: number
+              product: 
+                $ref: '#/components/schemas/Product'
         
-        relationships:
-          type: object
-          properties:
-            materials:
-              type: array
-              items:
-                type: object
-                properties:
-                  quantity:
-                    type: number
-                  material:
-                    $ref: '#/components/schemas/Material'
-            sub_products:
-              type: array
-              items:
-                type: object
-                properties:
-                  quantity:
-                    type: number
-                  product: 
-                    $ref: '#/components/schemas/Product'
 
     OrderItemMaterial:
       type: object
@@ -1532,56 +1253,16 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
-          type: string
-          enum:
-            - orderitemmaterials
-        links:
+        quantity:
+          type: number
+          format: float
+        material:
           type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        
-        attributes:
+          $ref: '#/components/schemas/Material'
+
+        material_entry:
           type: object
-          properties:
-            quantity:
-              type: number
-              format: float
-        
-        relationships:
-          type: object
-          properties:
-            material:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    quantity:
-                      type: number
-                    material:
-                      $ref: '#/components/schemas/Material'
-            entry:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    quantity:
-                      type: number
-                    material:
-                      $ref: '#/components/schemas/MaterialEntry'
+          $ref: '#/components/schemas/MaterialEntry'
 
 
     OrderItem:
@@ -1591,121 +1272,37 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        price:
+          type: number
+          format: float
+        is_consume_from_ready:
+          type: boolean
+        quantity:
+          type: number
+          format: float
+        comment:
           type: string
-          enum:
-            - orderitems
-        links:
+        sale_price:
+          type: number
+          format: float
+        cost:
+          type: number
+
+        sub_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemMaterial'
+
+        product:
           type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-        attributes:
-          type: object
-          properties:
-            price:
-              type: number
-              format: float
-            is_consume_from_ready:
-              type: boolean
-            quantity:
-              type: number
-              format: float
-            comment:
-              type: string
-            sale_price:
-              type: number
-              format: float
-            cost:
-              type: number
-              format: float
+          $ref: "#/components/schemas/Product"
 
-        relationships:
-          type: object
-          properties:
 
-            sub_items:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/OrderItem'
-
-            materials:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/OrderItemMaterial'
-
-            product:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  $ref: "#/components/schemas/Product"
-
-            entry:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  type: object
-                  properties:
-                    quantity:
-                      type: number
-                    material:
-                      $ref: '#/components/schemas/MaterialEntry'
 
 
     Order:
@@ -1715,86 +1312,43 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        submitted_at:
+          type: string
+          format: date-time
+        display_id:
+          type: string
+        discount:
+          type: number
+          format: float
+        state:
           type: string
           enum:
-            - orders
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
-
-        attributes:
-          type: object
-          properties:
-            submitted_at:
-              type: string
-              format: date-time
-            display_id:
-              type: string
-            discount:
-              type: number
-              format: float
-            state:
-              type: string
-              enum:
-                - pending
-                - finished
-                - cancelled
-            started_at:
-              type: string
-              format: date-time
-            comment:
-              type: string
-            cost:
-              type: number
-              format: float
-            price:
-              description: total price before discount
-              type: number
-              format: float
-            paid_amount:
-              type: number
-              format: float
-            is_pay_later:
-              type: boolean
-            is_paid:
-              type: boolean
-        
-        relationships:
-          type: object
-          properties:
-            customer:
-              type: object
-              properties:
-                items:
-                  type: object
-                  properties:
-                    links:
-                      type: object
-                      properties:
-                        self:
-                          type: string
-                        related:
-                          type: object
-                          properties:
-                            href:
-                              type: string
-                    data:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/OrderItem'
+            - pending
+            - finished
+            - cancelled
+        started_at:
+          type: string
+          format: date-time
+        comment:
+          type: string
+        cost:
+          type: number
+          format: float
+        price:
+          description: total price before discount
+          type: number
+          format: float
+        paid_amount:
+          type: number
+          format: float
+        is_pay_later:
+          type: boolean
+        is_paid:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
 
     Category:
       type: object
@@ -1803,63 +1357,13 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        name:
           type: string
-          enum:
-            - categories
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
 
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-
-        relationships:
-          type: object
-          properties:
-            products:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Product'
-                
-
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      description: total number of available categories in the db
-                      type: integer
-                    page:
-                      description: current page
-                      type: integer
-                    records_per_page:
-                      type: integer
-                    last_page:
-                      description: last page
-                      type: integer
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
     
     SalesPerDayOrder:
       type: object
@@ -1868,78 +1372,16 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
-          type: string
-          enum:
-            - salesperdayorders
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
         
-
-        relationships:
+        order:
           type: object
-          properties:
-            order:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  $ref: '#/components/schemas/Order'
-            
-            costs:
-              type: object
-              properties:
-                links:
-                  type: object
-                  properties:
-                    self:
-                      type: string
-                    related:
-                      type: object
-                      properties:
-                        href:
-                          type: string
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/ItemCost'
-                
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      description: total number of available categories in the db
-                      type: integer
-                    page:
-                      description: current page
-                      type: integer
-                    records_per_page:
-                      type: integer
-                    last_page:
-                      description: last page
-                      type: integer
+          $ref: '#/components/schemas/Order'
+
+        costs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCost'
+
 
     SalesPerDay:
       type: object
@@ -1948,64 +1390,19 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
+        date:
           type: string
-          enum:
-            - salesperdays
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
+        costs:
+          type: number
+          format: float
+        total_sales:
+          type: number
+          format: float
 
-        attributes:
-          type: object
-          properties:
-            date:
-              type: string
-            costs:
-              type: number
-              format: float
-            total_sales:
-              type: number
-              format: float
-        
-        relationships:
-          type: object
-          properties:
-            orders:
-              type: object
-              properties:
-
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/SalesPerDayOrder'
-
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      description: total number of available categories in the db
-                      type: integer
-                    page:
-                      description: current page
-                      type: integer
-                    records_per_page:
-                      type: integer
-                    last_page:
-                      description: last page
-                      type: integer
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesPerDayOrder'
 
     Settings:
       type: object
@@ -2015,48 +1412,26 @@ components:
           type: number
           description: Id of the material consume log
           readOnly: true
-        type:
-          type: string
-          enum:
-            - settings
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-            related:
-              type: object
-              properties:
-                href:
-                  type: string
-                meta:
-                  type: object
-                  properties:
-                    total_records:
-                      type: number
 
-        attributes:
+        inventory:
           type: object
           properties:
-            inventory:
-              type: object
-              properties:
-                default_inventory_quantity_warn:
-                  type: number
-                  format: float
-            orders:
-              type: object
-              properties:
-                queues:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      prefix:
-                        type: string
-                      next:
-                        type: integer
-                        format: uint32
+            default_inventory_quantity_warn:
+              type: number
+              format: float
+        orders:
+          type: object
+          properties:
+            queues:
+              type: array
+              items:
+                type: object
+                properties:
+                  prefix:
+                    type: string
+                  next:
+                    type: integer
+                    format: uint32
 
 security:
   - oidcAuth:

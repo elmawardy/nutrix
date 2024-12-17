@@ -74,19 +74,36 @@ func GetMaterials(config config.Config, logger logger.ILogger) http.HandlerFunc 
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		page_number, err := strconv.Atoi(r.URL.Query().Get("page[number]"))
+		if err != nil {
+			page_number = 1
+		}
+
+		page_size, err := strconv.Atoi(r.URL.Query().Get("page[size]"))
+		if err != nil {
+			page_size = 50
+		}
+
 		materialService := services.MaterialService{
 			Logger: logger,
 			Config: config,
 		}
 
-		materials, err := materialService.GetMaterials()
+		materials, err := materialService.GetMaterials(page_number, page_size)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		response := JSONApiOkResponse{
+			Data: materials,
+			Meta: JSONAPIMeta{
+				TotalRecords: len(materials),
+			},
+		}
+
 		// Convert the slice to JSON
-		jsonMaterials, err := json.Marshal(materials)
+		jsonMaterials, err := json.Marshal(response)
 		if err != nil {
 			logger.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)

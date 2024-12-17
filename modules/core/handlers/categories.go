@@ -11,10 +11,6 @@ import (
 	"github.com/elmawardy/nutrix/modules/core/services"
 )
 
-type JSONAPILinks struct {
-	Self string `json:"self"`
-}
-
 type JSONAPIMeta struct {
 	TotalRecords int `json:"total_records"`
 	PageNumber   int `json:"page_number"`
@@ -23,17 +19,8 @@ type JSONAPIMeta struct {
 }
 
 type JSONApiOkResponse struct {
-	Links JSONAPILinks `json:"links"`
-	Data  interface{}  `json:"data"`
-	Meta  JSONAPIMeta  `json:"meta"`
-}
-
-type JSONAPIResource struct {
-	ID            string       `json:"id,omitempty"`
-	Type          string       `json:"type"`
-	Links         JSONAPILinks `json:"links"`
-	Attributes    interface{}  `json:"attributes"`
-	Relationships interface{}  `json:"relationships"`
+	Data interface{} `json:"data"`
+	Meta JSONAPIMeta `json:"meta"`
 }
 
 // InsertCategory returns a HTTP handler function to insert a Category into the database.
@@ -142,54 +129,10 @@ func GetCategories(config config.Config, logger logger.ILogger, url_prefix strin
 			return
 		}
 
-		resources := make([]JSONAPIResource, len(categories))
-
-		for i, category := range categories {
-
-			products := make([]JSONAPIResource, len(category.Products))
-
-			for i, product := range category.Products {
-				products[i] = ConvertProductToJSONAPIResource(models.Product{
-					Id:   product.Id,
-					Name: product.Name,
-				}, url_prefix)
-			}
-
-			resources[i] = JSONAPIResource{
-				ID:    category.Id,
-				Type:  "categories",
-				Links: JSONAPILinks{Self: url_prefix + "/api/categories/" + category.Id},
-				Attributes: struct {
-					Name string `json:"name"`
-				}{
-					Name: category.Name,
-				},
-				Relationships: struct {
-					Products struct {
-						Data []JSONAPIResource `json:"data"`
-						Meta JSONAPIMeta       `json:"meta"`
-					} `json:"products"`
-				}{
-					Products: struct {
-						Data []JSONAPIResource `json:"data"`
-						Meta JSONAPIMeta       `json:"meta"`
-					}{
-						Data: products,
-						Meta: JSONAPIMeta{
-							TotalRecords: len(products),
-						},
-					},
-				},
-			}
-		}
-
 		response := JSONApiOkResponse{
-			Data: resources,
+			Data: categories,
 			Meta: JSONAPIMeta{
 				TotalRecords: len(categories),
-			},
-			Links: JSONAPILinks{
-				Self: url_prefix + "/api/categories",
 			},
 		}
 
@@ -201,31 +144,4 @@ func GetCategories(config config.Config, logger logger.ILogger, url_prefix strin
 
 	}
 
-}
-
-func ConvertProductToJSONAPIResource(product models.Product, url_prefix string) JSONAPIResource {
-
-	sub_products := make([]JSONAPIResource, len(product.SubProducts))
-
-	for index, sub_product := range product.SubProducts {
-		sub_products[index] = ConvertProductToJSONAPIResource(sub_product, url_prefix)
-	}
-
-	resource := JSONAPIResource{
-		ID:    product.Id,
-		Type:  "products",
-		Links: JSONAPILinks{Self: url_prefix + "/api/products/" + product.Id},
-		Attributes: struct {
-			Name string `json:"name"`
-		}{
-			Name: product.Name,
-		},
-		Relationships: struct {
-			SubProducts []JSONAPIResource `json:"subproducts"`
-		}{
-			SubProducts: sub_products,
-		},
-	}
-
-	return resource
 }
