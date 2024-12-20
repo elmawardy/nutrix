@@ -9,6 +9,7 @@ import (
 	"github.com/elmawardy/nutrix/common/logger"
 	"github.com/elmawardy/nutrix/modules/core/models"
 	"github.com/elmawardy/nutrix/modules/core/services"
+	"github.com/gorilla/mux"
 )
 
 type JSONAPIMeta struct {
@@ -28,7 +29,7 @@ func InsertCategory(config config.Config, logger logger.ILogger) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		request := struct {
-			Category models.Category `json:"category"`
+			Data models.Category `json:"data"`
 		}{}
 
 		err := json.NewDecoder(r.Body).Decode(&request)
@@ -42,11 +43,13 @@ func InsertCategory(config config.Config, logger logger.ILogger) http.HandlerFun
 			Config: config,
 		}
 
-		err = categoryService.InsertCategory(request.Category)
+		err = categoryService.InsertCategory(request.Data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		w.WriteHeader(http.StatusCreated)
 
 	}
 }
@@ -55,18 +58,15 @@ func InsertCategory(config config.Config, logger logger.ILogger) http.HandlerFun
 func DeleteCategory(config config.Config, logger logger.ILogger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		id := r.URL.Query().Get("id")
-		if id == "" {
-			http.Error(w, "id query string is required", http.StatusBadRequest)
-			return
-		}
+		params := mux.Vars(r)
+		id_param := params["id"]
 
 		categoryService := services.CategoryService{
 			Logger: logger,
 			Config: config,
 		}
 
-		err := categoryService.DeleteCategory(id)
+		err := categoryService.DeleteCategory(id_param)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -80,7 +80,7 @@ func UpdateCategory(config config.Config, logger logger.ILogger) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		body := struct {
-			Category models.Category `json:"category"`
+			Data models.Category `json:"data"`
 		}{}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -94,17 +94,33 @@ func UpdateCategory(config config.Config, logger logger.ILogger) http.HandlerFun
 			Config: config,
 		}
 
-		err = categoryService.UpdateCategory(body.Category)
+		category, err := categoryService.UpdateCategory(body.Data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		w.WriteHeader(http.StatusCreated)
+		jsonResponse, err := json.Marshal(JSONApiOkResponse{
+			Data: category,
+			Meta: JSONAPIMeta{
+				TotalRecords: 1,
+			},
+		})
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		w.Write(jsonResponse)
 	}
 }
 
 // GetCategories returns a HTTP handler function to retrieve a list of Categories from the database.
-func GetCategories(config config.Config, logger logger.ILogger, url_prefix string) http.HandlerFunc {
+func GetCategories(config config.Config, logger logger.ILogger) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 

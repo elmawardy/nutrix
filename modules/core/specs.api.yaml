@@ -353,13 +353,6 @@ paths:
       responses:
         '200':
           description: OK - The material was successfully edited
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Material'
   
   /materials/{id}/entries:
     post:
@@ -386,13 +379,6 @@ paths:
       responses:
         '201':
           description: Material entry successfully inserted to material
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/MaterialEntry'
 
   /materials/{material_id}/entries/{entry_id}:
     delete:
@@ -417,7 +403,7 @@ paths:
         '204':
           description: Material entry successfully deleted
 
-  /materials/{id}/entries/{entry_id}/cost:
+  /materials/{material_id}/entries/{entry_id}/cost:
     get:
       summary: Get material cost
       security:
@@ -425,7 +411,7 @@ paths:
       operationId: materialEntryCost
       parameters:
         - in: path
-          name: id
+          name: material_id
           schema:
             type: integer
           description: material id
@@ -659,25 +645,6 @@ paths:
           required: true
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    amount:
-                      type: number
-                      format: float
-                    payment_method:
-                      type: string
-                    currency:
-                      type: string
-              required:
-                - data
       responses:
         '204':
           description: Payment was successful
@@ -722,6 +689,12 @@ paths:
           schema:
             type: integer
             default: 10
+        - name: filter[search]
+          in: query
+          required: false
+          description: Search product by name or description
+          schema:
+            type: string
       responses:
         '200':
           description: A JSON array of products
@@ -773,6 +746,31 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/Product'
+
+  /products/availability:
+    get:
+      summary: Get products availability
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string
+          required: true
+          description: comma separated list of product ids to return the availability of
+      security:
+        - oidcAuth: []
+      responses:
+        '200':
+          description: A JSON array of products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductAvailability'
   
   /products/{id}:
     get:
@@ -824,15 +822,8 @@ paths:
                 data:
                   $ref: '#/components/schemas/Product'
       responses:
-        '200':
-          description: A JSON:API compliant response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Product'
+        '204':
+          description: Product update successfully
         '400':
           description: Bad request
           content:
@@ -1007,15 +998,8 @@ paths:
                 data:
                   $ref: '#/components/schemas/Settings'
       responses:
-        '200':
+        '204':
           description: Succeffully updated settings
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Settings'
 
 
 components:
@@ -1222,10 +1206,6 @@ components:
           description: current quantity in the db (doesn't include materials in the inventory)
           type: number
           format: float
-        availability:
-          description: total quantity can be produced calculated from the available materials in the inventory
-          type: number
-          format: float
         materials:
           type: array
           items:
@@ -1326,6 +1306,7 @@ components:
             - pending
             - finished
             - cancelled
+            - stashed
         started_at:
           type: string
           format: date-time
@@ -1363,7 +1344,12 @@ components:
         products:
           type: array
           items:
-            $ref: '#/components/schemas/Product'
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
     
     SalesPerDayOrder:
       type: object
@@ -1432,6 +1418,23 @@ components:
                   next:
                     type: integer
                     format: uint32
+
+    ProductAvailability:
+      type: object
+      properties:
+        recipe_id:
+          type: string
+        available:
+          type: number
+          format: float
+        ready:
+          type: number
+          format: float
+        component_requirements:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
 
 security:
   - oidcAuth:

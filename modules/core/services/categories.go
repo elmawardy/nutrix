@@ -85,7 +85,7 @@ func (cs *CategoryService) DeleteCategory(category_id string) (err error) {
 }
 
 // UpdateCategory updates a category in the database.
-func (cs *CategoryService) UpdateCategory(category models.Category) (err error) {
+func (cs *CategoryService) UpdateCategory(category models.Category) (updatedCategory models.Category, err error) {
 
 	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%v", cs.Config.Databases[0].Host, cs.Config.Databases[0].Port))
 
@@ -96,13 +96,13 @@ func (cs *CategoryService) UpdateCategory(category models.Category) (err error) 
 	// Connect to MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return err
+		return updatedCategory, err
 	}
 
 	// Ping the database to check connectivity
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		return err
+		return updatedCategory, err
 	}
 
 	// Connected successfully
@@ -113,7 +113,7 @@ func (cs *CategoryService) UpdateCategory(category models.Category) (err error) 
 		"products": category.Products,
 	}})
 
-	return err
+	return category, err
 
 }
 
